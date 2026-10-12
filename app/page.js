@@ -4173,6 +4173,24 @@ export default function Home() {
       </div>
     </div>
   </main>
+
+        {/* Application Footer */}
+        <footer className="app-footer">
+          <div className="app-footer-inner">
+            <div className="footer-brand-line">
+              <span>Designed &amp; Engineered by</span>
+              <span className="footer-dsk-badge">DSK</span>
+              <span>• RailSaathi 2.0 PRO</span>
+            </div>
+            <div className="footer-meta-links">
+              <span>Smart Indian Railways Intelligence</span>
+              <span>•</span>
+              <span>Family Seat Swap Hub</span>
+              <span>•</span>
+              <span>© {new Date().getFullYear()} DSK</span>
+            </div>
+          </div>
+        </footer>
       </div>
 
       {/* Fixed Native-App Style Bottom Navigation Bar (Mobile Screens) */}
