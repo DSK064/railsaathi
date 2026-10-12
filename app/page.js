@@ -1357,25 +1357,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-
-        {/* Mobile & Tablet Horizontal Scrollable Pill Strip */}
-        <div className="mobile-top-tab-strip">
-          {tabOptions.map((opt) => (
-            <button
-              key={opt.id}
-              type="button"
-              className={`mobile-top-pill ${activeTab === opt.id ? "active" : ""}`}
-              onClick={() => {
-                setActiveTab(opt.id);
-                setError(null);
-              }}
-            >
-              {opt.icon}
-              <span>{opt.mobileLabel || opt.label}</span>
-              {opt.featured && <span className="swap-new-badge">LIVE</span>}
-            </button>
-          ))}
-        </div>
       </nav>
 
       <div className="app-container">
@@ -4178,16 +4159,13 @@ export default function Home() {
         <footer className="app-footer">
           <div className="app-footer-inner">
             <div className="footer-brand-line">
-              <span>Designed &amp; Engineered by</span>
+              <span>Built by</span>
               <span className="footer-dsk-badge">DSK</span>
-              <span>• RailSaathi 2.0 PRO</span>
+              <span className="footer-divider-dot">•</span>
+              <span className="footer-app-title">RailSaathi 2.0</span>
             </div>
             <div className="footer-meta-links">
-              <span>Smart Indian Railways Intelligence</span>
-              <span>•</span>
-              <span>Family Seat Swap Hub</span>
-              <span>•</span>
-              <span>© {new Date().getFullYear()} DSK</span>
+              <span>Indian Railways Intelligence &amp; Seat Swap Hub • © {new Date().getFullYear()} DSK</span>
             </div>
           </div>
         </footer>

@@ -1901,8 +1901,74 @@ a.class-chip:hover {
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
 }
 
+/* ================= APPLICATION FOOTER ================= */
+.app-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+}
+
+.app-footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 22px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-xs);
+}
+
+.footer-brand-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.footer-app-title {
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.footer-divider-dot {
+  color: var(--text-muted);
+}
+
+.footer-dsk-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 3px 11px;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
+}
+
+.footer-meta-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
 /* ================= RESPONSIVE & MOBILE SUPER-APP DESIGN ================= */
 @media (max-width: 1080px) {
+  body {
+    padding-bottom: 84px; /* Space for Fixed Mobile Bottom Dock */
+  }
   .dashboard-split-layout {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -1913,8 +1979,8 @@ a.class-chip:hover {
   .nav-tabs-dock {
     display: none;
   }
-  .mobile-top-tab-strip {
-    display: flex;
+  .mobile-bottom-nav {
+    display: grid;
   }
   .bento-span-7,
   .bento-span-5 {
@@ -1923,12 +1989,8 @@ a.class-chip:hover {
 }
 
 @media (max-width: 768px) {
-  body {
-    padding-bottom: 78px; /* Space for Fixed Mobile Bottom Dock */
-  }
-
   .top-navbar-inner {
-    padding: 10px 14px 8px;
+    padding: 10px 14px;
   }
 
   .logo-icon {
@@ -1950,12 +2012,8 @@ a.class-chip:hover {
     font-size: 0.68rem;
   }
 
-  .mobile-bottom-nav {
-    display: grid;
-  }
-
   .app-container {
-    padding: 12px 12px 32px;
+    padding: 12px 12px 24px;
   }
 
   /* Sleek Compact Mobile App Hero Strip */
@@ -2155,10 +2213,32 @@ a.class-chip:hover {
     padding-bottom: 6px;
   }
 
+  /* Mobile Footer: Compact Centered Signature Pill Card */
+  .app-footer {
+    margin-top: 16px;
+    padding-top: 8px;
+    margin-bottom: 8px;
+  }
+
   .app-footer-inner {
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    gap: 10px;
+    padding: 12px 14px;
+    gap: 5px;
+    border-radius: 14px;
+  }
+
+  .footer-brand-line {
+    font-size: 0.8rem;
+    justify-content: center;
+  }
+
+  .footer-meta-links {
+    font-size: 0.68rem;
+    justify-content: center;
+    color: var(--text-muted);
   }
 }
 
@@ -2169,63 +2249,5 @@ a.class-chip:hover {
   .filters-container {
     grid-template-columns: 1fr;
   }
-}
-
-/* ================= APPLICATION FOOTER ================= */
-.app-footer {
-  margin-top: 28px;
-  padding-top: 20px;
-  border-top: 1px solid var(--glass-border);
-}
-
-.app-footer-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 14px;
-  padding: 14px 20px;
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  box-shadow: var(--shadow-xs);
-}
-
-.footer-brand-line {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.84rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.footer-dsk-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: var(--accent-gradient);
-  color: #ffffff;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.6px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
-}
-
-.footer-meta-links {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.76rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  flex-wrap: wrap;
-  justify-content: center;
 }
 
