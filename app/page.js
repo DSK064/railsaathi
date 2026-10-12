@@ -23,7 +23,8 @@ import {
   PlusCircle,
   Info,
   Layers,
-  ArrowRight
+  ArrowRight,
+  ArrowLeft
 } from "lucide-react";
 import { STATIONS } from "./data/stations";
 
@@ -528,6 +529,7 @@ const parseCoachPosition = (coachStr) => {
 export default function Home() {
   const [activeTab, setActiveTab] = useState("search");
   const [viewMode, setViewMode] = useState("ranked");
+  const [mobilePage, setMobilePage] = useState("form"); // "form" | "results"
   
   // Loading & Error states
   const [loading, setLoading] = useState(false);
@@ -633,7 +635,61 @@ export default function Home() {
     }));
   };
 
+  // Navigate to dedicated Results Page on Mobile (with browser Back button support)
+  const openMobileResultsPage = (tabOverride) => {
+    const nextTab = tabOverride || activeTab;
+    setMobilePage("results");
+    if (typeof window !== "undefined") {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set("tab", nextTab);
+        url.searchParams.set("view", "results");
+        window.history.pushState({ mobilePage: "results", tab: nextTab }, "", url.pathname + url.search);
+      } catch (e) {}
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handleBackToMobileForm = () => {
+    setMobilePage("form");
+    setError(null);
+    if (typeof window !== "undefined") {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("view");
+        window.history.replaceState({ mobilePage: "form", tab: activeTab }, "", url.pathname + url.search);
+      } catch (e) {}
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const urlTab = params.get("tab");
+    const urlView = params.get("view");
+    if (urlTab && ["search", "pnr", "status", "schedule", "swap"].includes(urlTab)) {
+      setActiveTab(urlTab);
+    }
+    if (urlView === "results") {
+      setMobilePage("results");
+    }
+    const onPopState = () => {
+      const p = new URLSearchParams(window.location.search);
+      const v = p.get("view");
+      const t = p.get("tab");
+      if (t && ["search", "pnr", "status", "schedule", "swap"].includes(t)) {
+        setActiveTab(t);
+      }
+      setMobilePage(v === "results" ? "results" : "form");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
   const handleLoadDemoPnr = () => {
+    setPnrNumber("4829104512");
     setPnrResults({
       TrainNo: "12626",
       TrainName: "Kerala Express",
@@ -669,6 +725,7 @@ export default function Home() {
       HasPantry: true
     });
     setError(null);
+    openMobileResultsPage("pnr");
   };
 
   // Autocomplete suggestions states
@@ -693,15 +750,6 @@ export default function Home() {
   ];
 
   const activeOption = tabOptions.find(opt => opt.id === activeTab) || tabOptions[0];
-
-  const scrollToResultsOnMobile = () => {
-    if (typeof window !== "undefined" && window.innerWidth <= 1080) {
-      setTimeout(() => {
-        const el = document.getElementById("workspace-results-panel");
-        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 120);
-    }
-  };
 
   const handleFromChange = (val) => {
     setSearchFromText(val);
@@ -755,7 +803,7 @@ export default function Home() {
       return;
     }
 
-    scrollToResultsOnMobile();
+    openMobileResultsPage("search");
 
     // Reset progressive states and start loading
     setLoading(true);
@@ -928,7 +976,7 @@ export default function Home() {
       setError("Please enter a valid 10-digit PNR number");
       return;
     }
-    scrollToResultsOnMobile();
+    openMobileResultsPage("pnr");
     setLoading(true);
     setError(null);
     setPnrResults(null);
@@ -954,7 +1002,7 @@ export default function Home() {
       setError("Please fill in both Train Number and Date fields");
       return;
     }
-    scrollToResultsOnMobile();
+    openMobileResultsPage("status");
     setLoading(true);
     setError(null);
     setLiveResults(null);
@@ -981,7 +1029,7 @@ export default function Home() {
       setError("Please enter a Train Number");
       return;
     }
-    scrollToResultsOnMobile();
+    openMobileResultsPage("schedule");
     setLoading(true);
     setError(null);
     setScheduleResults(null);
@@ -1125,6 +1173,7 @@ export default function Home() {
     }
     setActiveTab("swap");
     setSwapSubMode("create");
+    setMobilePage("form");
     setError(null);
   };
 
@@ -1204,6 +1253,7 @@ export default function Home() {
       }
       setSwapSuccessBanner(`Seat Swap Request posted for ${swapTrainNo} (${swapCurrentCoach} #${swapCurrentBerth} ➔ ${swapTargetCoach || "Any Coach"})!`);
       setSwapSubMode("browse");
+      openMobileResultsPage("swap");
     } catch (err) {
       setError("Failed to post swap request. Please try again.");
     }
@@ -1317,7 +1367,13 @@ export default function Home() {
       {/* Sticky Modern SaaS Application Navbar */}
       <nav className="top-navbar">
         <div className="top-navbar-inner">
-          <div className="brand-cluster" onClick={() => setActiveTab("search")}>
+          <div
+            className="brand-cluster"
+            onClick={() => {
+              setActiveTab("search");
+              setMobilePage("form");
+            }}
+          >
             <div className="logo-icon">
               <Train size={22} />
             </div>
@@ -1339,6 +1395,7 @@ export default function Home() {
                 className={`nav-tab-item ${opt.featured ? "swap-nav-tab" : ""} ${activeTab === opt.id ? "active" : ""}`}
                 onClick={() => {
                   setActiveTab(opt.id);
+                  setMobilePage("form");
                   setError(null);
                 }}
               >
@@ -1359,7 +1416,44 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="app-container">
+      <div className={`app-container ${mobilePage === "results" ? "mobile-view-results" : "mobile-view-form"}`}>
+        {/* Dedicated Mobile Results Page Header Bar (Shown on Mobile when viewing Results Page) */}
+        <div className="mobile-results-page-header">
+          <button
+            type="button"
+            className="mobile-back-btn"
+            onClick={handleBackToMobileForm}
+          >
+            <ArrowLeft size={17} />
+            <span>Back</span>
+          </button>
+
+          <div className="mobile-results-query-summary">
+            <div className="mobile-results-query-title">
+              {activeTab === "search" && (searchFrom && searchTo ? `${searchFrom} ➔ ${searchTo}` : "Train Search Results")}
+              {activeTab === "pnr" && (pnrResults?.TrainNo ? `PNR • #${pnrResults.TrainNo} ${pnrResults.TrainName || ""}` : "PNR Status Report")}
+              {activeTab === "status" && (liveTrainNo ? `Live GPS • Train #${liveTrainNo}` : "Live Running Status")}
+              {activeTab === "schedule" && (scheduleTrainNo ? `Schedule • Train #${scheduleTrainNo}` : "Train Timetable")}
+              {activeTab === "swap" && "Live Seat Swap Board"}
+            </div>
+            <div className="mobile-results-query-sub">
+              {activeTab === "search" && (searchDate ? formatDate(searchDate) : "Smart Seat Availability")}
+              {activeTab === "pnr" && (pnrResults?.Doj || "Confirmation & Coach Position")}
+              {activeTab === "status" && (liveDate ? `Start Date: ${formatDate(liveDate)}` : "Real-Time Station Tracker")}
+              {activeTab === "schedule" && "Halts, Rake & Intermediate Stops"}
+              {activeTab === "swap" && `${swapsList.length} Active Co-Passenger Requests`}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="mobile-modify-btn"
+            onClick={handleBackToMobileForm}
+          >
+            {activeTab === "swap" ? "+ Post / Filter" : "Modify"}
+          </button>
+        </div>
+
         {/* Dynamic Command Hero Banner */}
         <div className="workspace-hero-strip">
           <div>
@@ -1409,6 +1503,13 @@ export default function Home() {
                 </div>
                 <span className="brand-tag-pill">Instant</span>
               </div>
+
+              {error && mobilePage === "form" && (
+                <div className="error-message mobile-only-form-error">
+                  <AlertCircle size={18} />
+                  <span>{error}</span>
+                </div>
+              )}
 
           {/* Tab Content Panels */}
           <section>
@@ -1566,8 +1667,41 @@ export default function Home() {
 
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <button type="submit" className="btn-search">
-                  <Search size={18} /> Find Trains & Seats
+                  <Search size={18} /> Find Trains &amp; Seats
                 </button>
+              </div>
+
+              {/* Quick 1-Tap Corridors inside Form Card */}
+              <div style={{ marginTop: "14px", paddingTop: "12px", borderTop: "1px dashed var(--glass-border)" }}>
+                <span style={{ fontSize: "0.7rem", fontWeight: "700", color: "var(--text-muted)", display: "block", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                  ⚡ Popular Corridors (1-Tap Fill):
+                </span>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                  {[
+                    { fromCode: "NDLS", fromName: "New Delhi", toCode: "MMCT", toName: "Mumbai Central" },
+                    { fromCode: "SBC", fromName: "KSR Bengaluru", toCode: "MAS", toName: "MGR Chennai Ctrl" },
+                    { fromCode: "SC", fromName: "Secunderabad Jn", toCode: "VSKP", toName: "Visakhapatnam" },
+                    { fromCode: "HWH", fromName: "Howrah Jn", toCode: "NDLS", toName: "New Delhi" }
+                  ].map((c, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleQuickCorridorSelect(c.fromCode, c.fromName, c.toCode, c.toName)}
+                      style={{
+                        fontSize: "0.73rem",
+                        fontWeight: "700",
+                        padding: "5px 10px",
+                        borderRadius: "999px",
+                        border: "1px solid var(--glass-border)",
+                        background: searchFrom === c.fromCode && searchTo === c.toCode ? "var(--accent-glow)" : "var(--bg-tertiary)",
+                        color: searchFrom === c.fromCode && searchTo === c.toCode ? "var(--accent-indigo)" : "var(--text-secondary)",
+                        cursor: "pointer"
+                      }}
+                    >
+                      {c.fromCode} ➔ {c.toCode}
+                    </button>
+                  ))}
+                </div>
               </div>
             </form>
           )}
@@ -1590,6 +1724,29 @@ export default function Home() {
                 </div>
                 <button type="submit" className="btn-search">
                   <FileText size={18} /> Check Status
+                </button>
+              </div>
+              <div style={{ marginTop: "12px", paddingTop: "12px", borderTop: "1px dashed var(--glass-border)" }}>
+                <button
+                  type="button"
+                  onClick={handleLoadDemoPnr}
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "10px",
+                    border: "1px solid rgba(79, 70, 229, 0.28)",
+                    background: "var(--accent-glow)",
+                    color: "var(--accent-indigo)",
+                    fontSize: "0.8rem",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px"
+                  }}
+                >
+                  <Sparkles size={15} /> Try Sample Split-Coach PNR &amp; 3D Coach Layout
                 </button>
               </div>
             </form>
@@ -1625,6 +1782,42 @@ export default function Home() {
                   <MapPin size={18} /> Locate Train
                 </button>
               </div>
+
+              <div style={{ marginTop: "12px", paddingTop: "10px", borderTop: "1px dashed var(--glass-border)", display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                <span style={{ fontSize: "0.7rem", fontWeight: "700", color: "var(--text-muted)", width: "100%" }}>Quick Select Train:</span>
+                {[
+                  { no: "12626", name: "12626 Kerala Exp" },
+                  { no: "12724", name: "12724 Telangana Exp" },
+                  { no: "12952", name: "12952 Rajdhani" }
+                ].map((t) => (
+                  <button
+                    key={t.no}
+                    type="button"
+                    onClick={() => {
+                      setLiveTrainNo(t.no);
+                      if (!liveDate) {
+                        const today = new Date();
+                        const yyyy = today.getFullYear();
+                        const mm = String(today.getMonth() + 1).padStart(2, "0");
+                        const dd = String(today.getDate()).padStart(2, "0");
+                        setLiveDate(`${yyyy}-${mm}-${dd}`);
+                      }
+                    }}
+                    style={{
+                      fontSize: "0.73rem",
+                      fontWeight: "700",
+                      padding: "4px 10px",
+                      borderRadius: "999px",
+                      border: "1px solid var(--glass-border)",
+                      background: liveTrainNo === t.no ? "var(--accent-glow)" : "var(--bg-tertiary)",
+                      color: liveTrainNo === t.no ? "var(--accent-indigo)" : "var(--text-secondary)",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {t.name}
+                  </button>
+                ))}
+              </div>
             </form>
           )}
 
@@ -1647,6 +1840,33 @@ export default function Home() {
                 <button type="submit" className="btn-search">
                   <Clock size={18} /> Get Timetable
                 </button>
+              </div>
+
+              <div style={{ marginTop: "12px", paddingTop: "10px", borderTop: "1px dashed var(--glass-border)", display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                <span style={{ fontSize: "0.7rem", fontWeight: "700", color: "var(--text-muted)", width: "100%" }}>Quick Select Train:</span>
+                {[
+                  { no: "12626", name: "12626 Kerala Exp" },
+                  { no: "12724", name: "12724 Telangana Exp" },
+                  { no: "12952", name: "12952 Rajdhani" }
+                ].map((t) => (
+                  <button
+                    key={t.no}
+                    type="button"
+                    onClick={() => setScheduleTrainNo(t.no)}
+                    style={{
+                      fontSize: "0.73rem",
+                      fontWeight: "700",
+                      padding: "4px 10px",
+                      borderRadius: "999px",
+                      border: "1px solid var(--glass-border)",
+                      background: scheduleTrainNo === t.no ? "var(--accent-glow)" : "var(--bg-tertiary)",
+                      color: scheduleTrainNo === t.no ? "var(--accent-indigo)" : "var(--text-secondary)",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {t.name}
+                  </button>
+                ))}
               </div>
             </form>
           )}
@@ -1765,13 +1985,37 @@ export default function Home() {
                     ))}
                   </div>
 
-                  <button
-                    type="button"
-                    className="btn-search"
-                    onClick={() => setSwapSubMode("create")}
-                  >
-                    <PlusCircle size={18} /> Raise New Seat Swap Request
-                  </button>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    <button
+                      type="button"
+                      className="btn-search"
+                      onClick={() => openMobileResultsPage("swap")}
+                    >
+                      <Search size={18} /> Search &amp; View Seat Swaps ({swapsList.length})
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setSwapSubMode("create")}
+                      style={{
+                        width: "100%",
+                        padding: "11px 14px",
+                        borderRadius: "12px",
+                        border: "1px solid rgba(79, 70, 229, 0.3)",
+                        background: "var(--accent-glow)",
+                        color: "var(--accent-indigo)",
+                        fontSize: "0.86rem",
+                        fontWeight: "800",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px"
+                      }}
+                    >
+                      <PlusCircle size={17} /> Raise New Seat Swap Request
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleCreateSwapRequest}>
@@ -3501,7 +3745,10 @@ export default function Home() {
                       <button
                         type="button"
                         className="btn-book-now"
-                        onClick={() => setSwapSubMode("create")}
+                        onClick={() => {
+                          setSwapSubMode("create");
+                          setMobilePage("form");
+                        }}
                       >
                         + Raise Seat Swap Request
                       </button>
@@ -4180,6 +4427,7 @@ export default function Home() {
             className={`mobile-bottom-nav-item ${opt.featured ? "swap-bottom-item" : ""} ${activeTab === opt.id ? "active" : ""}`}
             onClick={() => {
               setActiveTab(opt.id);
+              setMobilePage("form");
               setError(null);
               if (typeof window !== "undefined") {
                 window.scrollTo({ top: 0, behavior: "smooth" });

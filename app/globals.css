@@ -1964,6 +1964,12 @@ a.class-chip:hover {
   color: var(--text-secondary);
 }
 
+/* ================= MOBILE DEDICATED RESULTS PAGE HEADER ================= */
+.mobile-results-page-header,
+.mobile-only-form-error {
+  display: none;
+}
+
 /* ================= RESPONSIVE & MOBILE SUPER-APP DESIGN ================= */
 @media (max-width: 1080px) {
   body {
@@ -1985,6 +1991,99 @@ a.class-chip:hover {
   .bento-span-7,
   .bento-span-5 {
     grid-column: span 12;
+  }
+
+  /* Mobile Page 1 (Form View): Hide Results Panel */
+  .app-container.mobile-view-form .layout-right-panel {
+    display: none !important;
+  }
+  .app-container.mobile-view-form .mobile-only-form-error {
+    display: flex;
+  }
+
+  /* Mobile Page 2 (Dedicated Results Page): Hide Form & Hero, Show Full-Page Results */
+  .app-container.mobile-view-results .workspace-hero-strip,
+  .app-container.mobile-view-results .layout-left-panel {
+    display: none !important;
+  }
+
+  .app-container.mobile-view-results .layout-right-panel {
+    display: block !important;
+    animation: fadeInUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .app-container.mobile-view-results .mobile-results-page-header {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: var(--hero-gradient);
+    color: #ffffff;
+    padding: 12px 14px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 10px 24px -8px rgba(15, 23, 42, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    animation: fadeIn 0.22s ease;
+  }
+
+  .mobile-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 10px;
+    padding: 7px 11px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-back-btn:active {
+    transform: scale(0.96);
+  }
+
+  .mobile-results-query-summary {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+  }
+
+  .mobile-results-query-title {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobile-results-query-sub {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+  }
+
+  .mobile-modify-btn {
+    background: var(--accent-gradient);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
+    padding: 7px 11px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+    flex-shrink: 0;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
   }
 }
 
