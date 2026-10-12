@@ -685,14 +685,23 @@ export default function Home() {
     activeTab === "swap";
 
   const tabOptions = [
-    { id: "search", label: "Search Trains", icon: <Search size={18} /> },
-    { id: "pnr", label: "PNR Status", icon: <FileText size={18} /> },
-    { id: "status", label: "Live Running", icon: <MapPin size={18} /> },
-    { id: "schedule", label: "Train Schedule", icon: <Clock size={18} /> },
-    { id: "swap", label: "Seat Swap (Travel Together)", icon: <ArrowLeftRight size={18} />, featured: true }
+    { id: "search", label: "Search Trains", mobileLabel: "Trains", icon: <Search size={18} /> },
+    { id: "pnr", label: "PNR Status", mobileLabel: "PNR", icon: <FileText size={18} /> },
+    { id: "status", label: "Live Running", mobileLabel: "Live GPS", icon: <MapPin size={18} /> },
+    { id: "schedule", label: "Train Schedule", mobileLabel: "Schedule", icon: <Clock size={18} /> },
+    { id: "swap", label: "Seat Swap (Travel Together)", mobileLabel: "Seat Swap", icon: <ArrowLeftRight size={18} />, featured: true }
   ];
 
   const activeOption = tabOptions.find(opt => opt.id === activeTab) || tabOptions[0];
+
+  const scrollToResultsOnMobile = () => {
+    if (typeof window !== "undefined" && window.innerWidth <= 1080) {
+      setTimeout(() => {
+        const el = document.getElementById("workspace-results-panel");
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 120);
+    }
+  };
 
   const handleFromChange = (val) => {
     setSearchFromText(val);
@@ -746,15 +755,7 @@ export default function Home() {
       return;
     }
 
-    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-    if (isMobile) {
-      let resultsUrl = `/results?src=${searchFrom}&dest=${searchTo}&doj=${formatDate(searchDate)}`;
-      if (searchToDate) {
-        resultsUrl += `&endDate=${formatDate(searchToDate)}`;
-      }
-      window.open(resultsUrl, '_blank');
-      return;
-    }
+    scrollToResultsOnMobile();
 
     // Reset progressive states and start loading
     setLoading(true);
@@ -927,6 +928,7 @@ export default function Home() {
       setError("Please enter a valid 10-digit PNR number");
       return;
     }
+    scrollToResultsOnMobile();
     setLoading(true);
     setError(null);
     setPnrResults(null);
@@ -952,6 +954,7 @@ export default function Home() {
       setError("Please fill in both Train Number and Date fields");
       return;
     }
+    scrollToResultsOnMobile();
     setLoading(true);
     setError(null);
     setLiveResults(null);
@@ -978,6 +981,7 @@ export default function Home() {
       setError("Please enter a Train Number");
       return;
     }
+    scrollToResultsOnMobile();
     setLoading(true);
     setError(null);
     setScheduleResults(null);
@@ -1353,6 +1357,25 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Mobile & Tablet Horizontal Scrollable Pill Strip */}
+        <div className="mobile-top-tab-strip">
+          {tabOptions.map((opt) => (
+            <button
+              key={opt.id}
+              type="button"
+              className={`mobile-top-pill ${activeTab === opt.id ? "active" : ""}`}
+              onClick={() => {
+                setActiveTab(opt.id);
+                setError(null);
+              }}
+            >
+              {opt.icon}
+              <span>{opt.mobileLabel || opt.label}</span>
+              {opt.featured && <span className="swap-new-badge">LIVE</span>}
+            </button>
+          ))}
+        </div>
       </nav>
 
       <div className="app-container">
@@ -1381,15 +1404,15 @@ export default function Home() {
           <div className="hero-quick-stats">
             <div className="hero-stat-pill">
               <span className="hero-stat-val">100 KM</span>
-              <span className="hero-stat-lbl">Geo-Station Radar</span>
+              <span className="hero-stat-lbl">Geo Radar</span>
             </div>
             <div className="hero-stat-pill">
               <span className="hero-stat-val">{swapsList.length} Active</span>
-              <span className="hero-stat-lbl">Live Seat Swaps</span>
+              <span className="hero-stat-lbl">Seat Swaps</span>
             </div>
             <div className="hero-stat-pill">
               <span className="hero-stat-val">GN + TQ</span>
-              <span className="hero-stat-lbl">Dual Quota Engine</span>
+              <span className="hero-stat-lbl">Dual Quota</span>
             </div>
           </div>
         </div>
@@ -1398,31 +1421,10 @@ export default function Home() {
         <main className="dashboard-card">
           <div className="dashboard-split-layout">
             <div className="layout-left-panel">
-              {/* Mobile/Tablet Service Selector Chips */}
-              <div className="service-selector-container">
-                <div className="service-selector-chips">
-                  {tabOptions.map((opt) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      className={`service-chip-btn ${opt.featured ? 'swap-featured-chip' : ''} ${activeTab === opt.id ? 'active' : ''}`}
-                      onClick={() => {
-                        setActiveTab(opt.id);
-                        setError(null);
-                      }}
-                    >
-                      {opt.icon}
-                      <span>{opt.label}</span>
-                      {opt.featured && <span className="swap-new-badge">New</span>}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <div className="left-panel-header">
                 <div className="left-panel-title">
                   {activeOption.icon}
-                  <span>{activeOption.label} Controls</span>
+                  <span>{activeOption.label}</span>
                 </div>
                 <span className="brand-tag-pill">Instant</span>
               </div>
@@ -2175,7 +2177,7 @@ export default function Home() {
         </section>
       </div>
 
-      <div className="layout-right-panel">
+      <div id="workspace-results-panel" className="layout-right-panel">
 
         {/* Global Loading Spinner */}
         {loading && (
@@ -3075,9 +3077,6 @@ export default function Home() {
                           key={index}
                           className={`timeline-item ${isActive ? "active" : ""} ${isPassed ? "passed" : ""}`}
                           style={{
-                            gridTemplateColumns: "1.5fr 1fr 1.2fr",
-                            paddingBottom: "20px",
-                            paddingLeft: "12px",
                             opacity: isUpcoming ? 0.6 : 1
                           }}
                         >
@@ -4175,6 +4174,28 @@ export default function Home() {
     </div>
   </main>
       </div>
+
+      {/* Fixed Native-App Style Bottom Navigation Bar (Mobile Screens) */}
+      <nav className="mobile-bottom-nav" aria-label="Mobile Navigation">
+        {tabOptions.map((opt) => (
+          <button
+            key={opt.id}
+            type="button"
+            className={`mobile-bottom-nav-item ${opt.featured ? "swap-bottom-item" : ""} ${activeTab === opt.id ? "active" : ""}`}
+            onClick={() => {
+              setActiveTab(opt.id);
+              setError(null);
+              if (typeof window !== "undefined") {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
+          >
+            {opt.featured && <span className="mobile-bottom-dot-badge" />}
+            <span className="mobile-bottom-nav-icon">{opt.icon}</span>
+            <span className="mobile-bottom-nav-label">{opt.mobileLabel || opt.label}</span>
+          </button>
+        ))}
+      </nav>
     </>
   );
 }

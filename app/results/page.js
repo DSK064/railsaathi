@@ -583,29 +583,53 @@ function ResultsContent() {
   };
 
   return (
-    <div className="app-container" style={{ maxWidth: "860px" }}>
-      {/* Modern SaaS Results Header Banner */}
-      <header className="workspace-hero-strip" style={{ padding: "16px 20px", marginBottom: "20px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          <button 
-            onClick={handleBackClick} 
-            style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: "10px", width: "38px", height: "38px", color: "#ffffff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <div>
-            <div style={{ fontSize: "0.7rem", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.6px", opacity: 0.8 }}>
-              RailSaathi • Smart Seat Results
+    <>
+      <nav className="top-navbar">
+        <div className="top-navbar-inner">
+          <div className="brand-cluster" onClick={handleBackClick}>
+            <div className="logo-icon">
+              <Train size={20} />
             </div>
-            <h2 style={{ fontSize: "1.2rem", fontWeight: "800", color: "#ffffff", margin: 0, fontFamily: "var(--font-mono)" }}>
-              {src} ➔ {dest}
-            </h2>
-            <span style={{ fontSize: "0.82rem", color: "rgba(226,232,240,0.85)" }}>
-              {endDate && doj !== endDate ? `${doj} to ${endDate}` : doj}
-            </span>
+            <div className="brand-text-group">
+              <div className="logo-text">
+                RailSaathi
+                <span className="brand-tag-pill">2.0 PRO</span>
+              </div>
+              <span className="brand-subtext">Indian Railways Intelligence &amp; Seat Swap Hub</span>
+            </div>
+          </div>
+          <div className="nav-status-cluster">
+            <div className="live-network-pill">
+              <span className="live-network-dot"></span>
+              <span>IRCTC / NTES Live</span>
+            </div>
           </div>
         </div>
-      </header>
+      </nav>
+
+      <div className="app-container" style={{ maxWidth: "860px" }}>
+        {/* Modern SaaS Results Header Banner */}
+        <header className="workspace-hero-strip" style={{ padding: "16px 20px", marginBottom: "20px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+            <button 
+              onClick={handleBackClick} 
+              style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.22)", borderRadius: "10px", width: "38px", height: "38px", color: "#ffffff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <div>
+              <div style={{ fontSize: "0.7rem", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.6px", opacity: 0.8 }}>
+                RailSaathi • Smart Seat Results
+              </div>
+              <h2 style={{ fontSize: "1.2rem", fontWeight: "800", color: "#ffffff", margin: 0, fontFamily: "var(--font-mono)" }}>
+                {src} ➔ {dest}
+              </h2>
+              <span style={{ fontSize: "0.82rem", color: "rgba(226,232,240,0.85)" }}>
+                {endDate && doj !== endDate ? `${doj} to ${endDate}` : doj}
+              </span>
+            </div>
+          </div>
+        </header>
 
       {/* Global Loading Spinner */}
       {loading && (
@@ -1110,7 +1134,8 @@ function ResultsContent() {
           )}
         </section>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 
